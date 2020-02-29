@@ -11,6 +11,8 @@ class UserModel {
     this.price,
   );
 
+  //this is params branch
+
   UserModel.fromMap(dynamic obj) {
     this.rate = obj["rate"];
     this.name = obj["name"];
