@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'user_model.dart';
 
 class Billing extends StatefulWidget {
   @override
@@ -18,7 +17,13 @@ class _BillingState extends State<Billing> {
   }
 }
 
-class _MyList2 extends StatelessWidget {
+class _MyList2 extends StatefulWidget {
+  @override
+  __MyList2State createState() => __MyList2State();
+}
+
+class __MyList2State extends State<_MyList2> {
+  String newVal;
   @override
   Widget build(BuildContext context) {
     return new ListView(
@@ -43,14 +48,22 @@ class _MyList2 extends StatelessWidget {
         ),
         Text('Choose Vegetables :'),
         new DropdownButton<String>(
+          value: newVal,
           items: <String>['Potato', 'Fruits', 'C', 'D', 'E', 'F']
               .map((String value) {
             return new DropdownMenuItem<String>(
               value: value,
               child: new Text(value),
+              onTap: () {
+                setState(() {
+                  newVal = value;
+                });
+              },
             );
           }).toList(),
-          onChanged: (_) {},
+          onChanged: (_) {
+            setState(() {});
+          },
         ),
         Row(
           children: <Widget>[
@@ -92,7 +105,9 @@ class _MyList2 extends StatelessWidget {
           ],
         ),
         RaisedButton(
-          onPressed: () {},
+          onPressed: () {
+            print('Submit clicked! Dropdown value: $newVal');
+          },
           child: Text('Submit'),
         ),
       ],
