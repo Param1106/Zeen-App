@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class Billing extends StatefulWidget {
   @override
@@ -26,6 +26,7 @@ class _MyList2 extends StatefulWidget {
 class __MyList2State extends State<_MyList2> {
   String newVal;
   var selectedCurrency;
+  List items = []; // add stuff to this list to display dynamically
   @override
   Widget build(BuildContext context) {
     return new ListView(
@@ -97,57 +98,63 @@ class __MyList2State extends State<_MyList2> {
               }
             }),
         SizedBox(
-          height: 150.0,
+          height: 15.0,
+        ),
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: Text('Name', textAlign: TextAlign.center),
+            ),
+            Expanded(
+              child: Text('Rate', textAlign: TextAlign.center),
+            ),
+            Expanded(
+              child: Text('Quantity', textAlign: TextAlign.center),
+            ),
+            Expanded(
+              child: Text('Price', textAlign: TextAlign.center),
+            ),
+            Expanded(
+              child: Text('Extra', textAlign: TextAlign.center),
+            ),
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: Text('Potato', textAlign: TextAlign.center),
+            ),
+            Expanded(
+              child: Text('30', textAlign: TextAlign.center),
+            ),
+            Expanded(
+              child: Text('2', textAlign: TextAlign.center),
+            ),
+            Expanded(
+              child: Text('60', textAlign: TextAlign.center),
+            ),
+            Expanded(
+              child:
+                  Text('200 change to be given', textAlign: TextAlign.center),
+            ),
+          ],
+        ),
+        ListView.builder(
+            // this generates widgets dynamically
+            shrinkWrap: true,
+            itemCount: items.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Text('${items[index]} #$index');
+            }),
+        RaisedButton(
+          child: Text('Add Item'),
+          onPressed: () {
+            setState(() {
+              items.add('New Widget');
+            });
+          },
         ),
       ],
     );
   }
 }
-
-//        Row(
-//          children: <Widget>[
-//            Expanded(
-//              child: Text('Name', textAlign: TextAlign.center),
-//            ),
-//            Expanded(
-//              child: Text('Rate', textAlign: TextAlign.center),
-//            ),
-//            Expanded(
-//              child: Text('Quantity', textAlign: TextAlign.center),
-//            ),
-//            Expanded(
-//              child: Text('Price', textAlign: TextAlign.center),
-//            ),
-//            Expanded(
-//              child: Text('Extra', textAlign: TextAlign.center),
-//            ),
-//          ],
-//        ),
-//        Row(
-//          children: <Widget>[
-//            Expanded(
-//              child: Text('Potato', textAlign: TextAlign.center),
-//            ),
-//            Expanded(
-//              child: Text('30', textAlign: TextAlign.center),
-//            ),
-//            Expanded(
-//              child: Text('2', textAlign: TextAlign.center),
-//            ),
-//            Expanded(
-//              child: Text('60', textAlign: TextAlign.center),
-//            ),
-//            Expanded(
-//              child:
-//                  Text('200 change to be given', textAlign: TextAlign.center),
-//            ),
-//          ],
-//        ),
-//        RaisedButton(
-//          onPressed: () {
-//            print('Submit clicked! Dropdown value: $newVal');
-//          },
-//          child: Text('Submit'),
-//        ),
-//      ],
-//    );
