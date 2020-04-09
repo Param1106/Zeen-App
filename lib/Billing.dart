@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 class Billing extends StatefulWidget {
   @override
   _BillingState createState() => _BillingState();
@@ -24,6 +24,7 @@ class _MyList2 extends StatefulWidget {
 
 class __MyList2State extends State<_MyList2> {
   String newVal;
+  var selectedCurrency;
   @override
   Widget build(BuildContext context) {
     return new ListView(
@@ -47,24 +48,59 @@ class __MyList2State extends State<_MyList2> {
           decoration: new InputDecoration(hintText: "input Here"),
         ),
         Text('Choose Vegetables :'),
-        new DropdownButton<String>(
-          value: newVal,
-          items: <String>['Potato', 'Fruits', 'C', 'D', 'E', 'F']
-              .map((String value) {
-            return new DropdownMenuItem<String>(
-              value: value,
-              child: new Text(value),
-              onTap: () {
-                setState(() {
-                  newVal = value;
-                });
-              },
-            );
-          }).toList(),
-          onChanged: (_) {
-            setState(() {});
-          },
+        StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance.collection("v_challengers").snapshots(),
+           builder: (context, snapshot) {
+                    if (!snapshot.hasData)
+                      const Text("Loading.....");
+                    else {
+                      List<DropdownMenuItem> currencyItems = [];
+                      for (int i = 0; i < snapshot.data.documents.length; i++) {
+                        DocumentSnapshot snap = snapshot.data.documents[i];
+                        currencyItems.add(
+                          DropdownMenuItem(
+                            child: Text(
+                              snap.documentID,
+                              style: TextStyle(color: Color(0xff11b719)),
+                            ),
+                            value: "${snap.documentID}",
+                          ),
+                        );
+                      }
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          DropdownButton(
+                            items: currencyItems,
+                            onChanged: (currencyValue) {
+                              final snackBar = SnackBar(
+                                content: Text(
+                                  'Selected Currency value is $currencyValue',
+                                  style: TextStyle(color: Color(0xff11b719)),
+                                ),
+                              );
+                              Scaffold.of(context).showSnackBar(snackBar);
+                              setState(() {
+                                selectedCurrency = currencyValue;
+                              });
+                            },
+                            value: selectedCurrency,
+                            isExpanded: false,
+                            hint: new Text(
+                              "Choose Vegetable Type",
+                              style: TextStyle(color: Color(0xff11b719)),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  }),
+              SizedBox(
+                height: 150.0,
+              ),
         ),
+
+       
         Row(
           children: <Widget>[
             Expanded(
