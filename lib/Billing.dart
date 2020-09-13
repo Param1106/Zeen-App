@@ -62,10 +62,11 @@ class __MyList2State extends State<_MyList2> {
                   currencyItems.add(
                     DropdownMenuItem(
                       child: Text(
-                        snap.documentID,
+                        snap.data["v_name"],
                         style: TextStyle(color: Color(0xff11b719)),
                       ),
-                      value: "${snap.documentID}",
+                      value:
+                          "${snap.data["v_name"]}", //change the v_name to v_price after m0dification in firebase
                     ),
                   );
                 }
@@ -100,45 +101,6 @@ class __MyList2State extends State<_MyList2> {
         SizedBox(
           height: 15.0,
         ),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Text('Name', textAlign: TextAlign.center),
-            ),
-            Expanded(
-              child: Text('Rate', textAlign: TextAlign.center),
-            ),
-            Expanded(
-              child: Text('Quantity', textAlign: TextAlign.center),
-            ),
-            Expanded(
-              child: Text('Price', textAlign: TextAlign.center),
-            ),
-            Expanded(
-              child: Text('Extra', textAlign: TextAlign.center),
-            ),
-          ],
-        ),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Text('Potato', textAlign: TextAlign.center),
-            ),
-            Expanded(
-              child: Text('30', textAlign: TextAlign.center),
-            ),
-            Expanded(
-              child: Text('2', textAlign: TextAlign.center),
-            ),
-            Expanded(
-              child: Text('60', textAlign: TextAlign.center),
-            ),
-            Expanded(
-              child:
-                  Text('200 change to be given', textAlign: TextAlign.center),
-            ),
-          ],
-        ),
         ListView.builder(
             // this generates widgets dynamically
             shrinkWrap: true,
@@ -147,14 +109,52 @@ class __MyList2State extends State<_MyList2> {
               return Text('${items[index]} #$index');
             }),
         RaisedButton(
-          child: Text('Add Item'),
           onPressed: () {
-            setState(() {
-              items.add('New Widget');
-            });
+            _showAddTaskDialog();
           },
         ),
       ],
     );
+  }
+
+  void _showAddTaskDialog() {
+    showDialog(
+        context: context,
+        builder: (ctx) {
+          return SimpleDialog(
+            title: Text("Input Quantity"),
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.all(10),
+                child: TextField(
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Write your task here",
+                      labelText: "Task Name"),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.all(10),
+                child: Row(
+                  children: <Widget>[
+                    FlatButton(
+                      child: Text("Cancel"),
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                    ),
+                    RaisedButton(
+                      child: Text("Add"),
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          );
+        });
   }
 }
