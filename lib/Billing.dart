@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:enactusdraft2/cutom_dropdown.dart';
+import 'package:enactusdraft2/vegetable_model.dart';
 import 'package:flutter/material.dart';
 
 class Billing extends StatefulWidget {
@@ -25,8 +27,32 @@ class _MyList2 extends StatefulWidget {
 
 class __MyList2State extends State<_MyList2> {
   String newVal;
-  var selectedCurrency;
-  List items = []; // add stuff to this list to display dynamically
+  Vegetable selected;
+  List<Vegetable> selectedItems  = [];
+  Future<List<DropdownMenuItem<Vegetable>>> items;
+//  List items = []; // add stuff to this list to display dynamically
+
+  @override
+  void initState() {
+    items = getItems();
+    super.initState();
+  }
+
+  void addToBill(Vegetable vegetable) async {
+    setState(() {
+      selectedItems.add(vegetable);
+    });
+  }
+
+  Future<List<DropdownMenuItem<Vegetable>>> getItems() async {
+    QuerySnapshot docs = await Firestore.instance.collection('v_challengers').getDocuments();
+    List<Vegetable> vegetables = [];
+    docs.documents.forEach((element) {
+      vegetables.add(Vegetable(uid: element.documentID, name: element.data['v_name'], price: element.data['v_price']));
+    });
+    return vegetables.map((e) => DropdownMenuItem<Vegetable>(child: Text('${e.name}'), value: e,)).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return new ListView(
@@ -50,63 +76,35 @@ class __MyList2State extends State<_MyList2> {
           decoration: new InputDecoration(hintText: "input Here"),
         ),
         Text('Choose Vegetables :'),
-        StreamBuilder<QuerySnapshot>(
-            stream: Firestore.instance.collection("v_challengers").snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData)
-                return Text("Loading.....");
-              else {
-                List<DropdownMenuItem> currencyItems = [];
-                for (int i = 0; i < snapshot.data.documents.length; i++) {
-                  DocumentSnapshot snap = snapshot.data.documents[i];
-                  currencyItems.add(
-                    DropdownMenuItem(
-                      child: Text(
-                        snap.data["v_name"],
-                        style: TextStyle(color: Color(0xff11b719)),
-                      ),
-                      value:
-                          "${snap.data["v_name"]}", //change the v_name to v_price after m0dification in firebase
-                    ),
-                  );
-                }
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    DropdownButton(
-                      items: currencyItems,
-                      onChanged: (currencyValue) {
-                        final snackBar = SnackBar(
-                          content: Text(
-                            'Selected Currency value is $currencyValue',
-                            style: TextStyle(color: Color(0xff11b719)),
-                          ),
-                        );
-                        Scaffold.of(context).showSnackBar(snackBar);
-                        setState(() {
-                          selectedCurrency = currencyValue;
-                        });
-                      },
-                      value: selectedCurrency,
-                      isExpanded: false,
-                      hint: new Text(
-                        "Choose Vegetable Type",
-                        style: TextStyle(color: Color(0xff11b719)),
-                      ),
-                    ),
-                  ],
-                );
-              }
-            }),
+      Row(
+        children: [
+          Text('Choose a vegetable'),
+          FlatButton(
+            onPressed: () {
+              showDialog(
+                  context: Scaffold.of(context).context,
+                  builder: (context) {
+                    return AlertDialog(content: CustomDropDown(onTap: addToBill,),);
+                  });
+            },
+            child: Row(
+              children: [
+                Text('Select a vegetable'),
+                Icon(Icons.arrow_drop_down),
+              ],
+            ),
+          )
+        ],
+      ),
         SizedBox(
           height: 15.0,
         ),
         ListView.builder(
             // this generates widgets dynamically
             shrinkWrap: true,
-            itemCount: items.length,
+            itemCount: selectedItems.length,
             itemBuilder: (BuildContext context, int index) {
-              return Text('${items[index]} #$index');
+              return Text('${selectedItems[index].name} #$index');
             }),
         RaisedButton(
           onPressed: () {
