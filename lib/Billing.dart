@@ -39,6 +39,7 @@ class __MyList2State extends State<_MyList2> {
   }
 
   void addToBill(Vegetable vegetable) async {
+
     setState(() {
       selectedItems.add(vegetable);
     });
@@ -78,7 +79,6 @@ class __MyList2State extends State<_MyList2> {
         Text('Choose Vegetables :'),
       Row(
         children: [
-          Text('Choose a vegetable'),
           FlatButton(
             onPressed: () {
               showDialog(
@@ -93,23 +93,25 @@ class __MyList2State extends State<_MyList2> {
                 Icon(Icons.arrow_drop_down),
               ],
             ),
-          )
+          ),
+          RaisedButton(
+            child: Text('Choose Qty'),
+            onPressed: () {
+              _showAddTaskDialog();
+            },
+          ),
         ],
       ),
         SizedBox(
           height: 15.0,
         ),
-        ListView.builder(
-            // this generates widgets dynamically
-            shrinkWrap: true,
-            itemCount: selectedItems.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Text('${selectedItems[index].name} #$index');
-            }),
-        RaisedButton(
-          onPressed: () {
-            _showAddTaskDialog();
-          },
+        DataTable(
+          columns: [
+            DataColumn(label: Text('Vegetable')),
+            DataColumn(label: Text('Qty')),
+            DataColumn(label: Text('Price')),
+          ],
+          rows: selectedItems.map((e) => DataRow(cells: [DataCell(Text('${e.name}')), DataCell(Text('${e.qty}')), DataCell(Text('${e.price*e.qty}'))])).toList() ,
         ),
       ],
     );
