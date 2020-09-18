@@ -4,14 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CustomDropDown extends StatefulWidget {
-  final onTap;
 
-  CustomDropDown({this.onTap});
   @override
   _CustomDropDownState createState() => _CustomDropDownState();
 }
 
 class _CustomDropDownState extends State<CustomDropDown> {
+  Vegetable selected;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +37,6 @@ class _CustomDropDownState extends State<CustomDropDown> {
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () {
-                      widget.onTap(sorted[index]);
                       Navigator.of(context).pop(sorted[index]);
                     },
                     child: Container(

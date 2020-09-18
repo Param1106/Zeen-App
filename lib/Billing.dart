@@ -38,10 +38,16 @@ class __MyList2State extends State<_MyList2> {
     super.initState();
   }
 
-  void addToBill(Vegetable vegetable) async {
-
+  void addToBill() async {
+    Vegetable v = await showDialog(
+        context: Scaffold.of(context).context,
+        builder: (context) {
+          return AlertDialog(content: CustomDropDown(),);
+        });
+    var res = await _showAddTaskDialog();
+    v.qty = int.parse(res);
     setState(() {
-      selectedItems.add(vegetable);
+      selectedItems.add(v);
     });
   }
 
@@ -81,11 +87,7 @@ class __MyList2State extends State<_MyList2> {
         children: [
           FlatButton(
             onPressed: () {
-              showDialog(
-                  context: Scaffold.of(context).context,
-                  builder: (context) {
-                    return AlertDialog(content: CustomDropDown(onTap: addToBill,),);
-                  });
+              addToBill();
             },
             child: Row(
               children: [
@@ -94,12 +96,12 @@ class __MyList2State extends State<_MyList2> {
               ],
             ),
           ),
-          RaisedButton(
-            child: Text('Choose Qty'),
-            onPressed: () {
-              _showAddTaskDialog();
-            },
-          ),
+//          RaisedButton(
+//            child: Text('Choose Qty'),
+//            onPressed: () {
+//              _showAddTaskDialog();
+//            },
+//          ),
         ],
       ),
         SizedBox(
@@ -117,8 +119,10 @@ class __MyList2State extends State<_MyList2> {
     );
   }
 
-  void _showAddTaskDialog() {
-    showDialog(
+  Future<String> _showAddTaskDialog() async {
+    TextEditingController _cont = TextEditingController();
+
+    var res = await showDialog(
         context: context,
         builder: (ctx) {
           return SimpleDialog(
@@ -127,10 +131,12 @@ class __MyList2State extends State<_MyList2> {
               Container(
                 margin: EdgeInsets.all(10),
                 child: TextField(
+                  keyboardType: TextInputType.number,
+                  controller: _cont,
                   decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      hintText: "Write your task here",
-                      labelText: "Task Name"),
+                      hintText: "Enter Quantity",
+                      labelText: "Quantity"),
                 ),
               ),
               Container(
@@ -145,7 +151,9 @@ class __MyList2State extends State<_MyList2> {
                     ),
                     RaisedButton(
                       child: Text("Add"),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pop(_cont.text);
+                      },
                     ),
                   ],
                 ),
@@ -156,5 +164,6 @@ class __MyList2State extends State<_MyList2> {
             ),
           );
         });
+    return res.toString();
   }
 }
