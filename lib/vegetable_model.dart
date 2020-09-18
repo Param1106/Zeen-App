@@ -1,10 +1,10 @@
 class Vegetable {
   final String uid;
   final String name;
-  final int price;
-  int qty;
+  final double price;
+  double qty;
 
-  set quantity(int qty) {
+  set quantity(double qty) {
     this.qty = qty;
   }
 

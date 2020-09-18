@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enactusdraft2/cutom_dropdown.dart';
+import 'package:enactusdraft2/total_bottom_bar.dart';
 import 'package:enactusdraft2/vegetable_model.dart';
 import 'package:flutter/material.dart';
 
@@ -26,15 +27,13 @@ class _MyList2 extends StatefulWidget {
 }
 
 class __MyList2State extends State<_MyList2> {
-  String newVal;
+  double total;
   Vegetable selected;
   List<Vegetable> selectedItems  = [];
   Future<List<DropdownMenuItem<Vegetable>>> items;
-//  List items = []; // add stuff to this list to display dynamically
 
   @override
   void initState() {
-    items = getItems();
     super.initState();
   }
 
@@ -45,77 +44,71 @@ class __MyList2State extends State<_MyList2> {
           return AlertDialog(content: CustomDropDown(),);
         });
     var res = await _showAddTaskDialog();
-    v.qty = int.parse(res);
+    v.qty = double.parse(res);
     setState(() {
       selectedItems.add(v);
+      double sum = 0.0;
+      selectedItems.forEach((element) {
+        sum += element.price;
+      });
+      total = sum;
     });
-  }
-
-  Future<List<DropdownMenuItem<Vegetable>>> getItems() async {
-    QuerySnapshot docs = await Firestore.instance.collection('v_challengers').getDocuments();
-    List<Vegetable> vegetables = [];
-    docs.documents.forEach((element) {
-      vegetables.add(Vegetable(uid: element.documentID, name: element.data['v_name'], price: element.data['v_price']));
-    });
-    return vegetables.map((e) => DropdownMenuItem<Vegetable>(child: Text('${e.name}'), value: e,)).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    return new ListView(
-      children: <Widget>[
-        Text('Customer Name:'),
-        TextField(decoration: new InputDecoration(hintText: "input here")),
-        Text('Customer Phone Number :'),
-        TextField(
-          decoration: new InputDecoration(hintText: "input here"),
-        ),
-        Text('Customer Tower :'),
-        TextField(
-          decoration: new InputDecoration(hintText: "input here"),
-        ),
-        Text("Customer Flat :"),
-        TextField(
-          decoration: new InputDecoration(hintText: "input Here"),
-        ),
-        Text("Enter Stuff"),
-        TextField(
-          decoration: new InputDecoration(hintText: "input Here"),
-        ),
-        Text('Choose Vegetables :'),
-      Row(
-        children: [
-          FlatButton(
-            onPressed: () {
-              addToBill();
-            },
-            child: Row(
-              children: [
-                Text('Select a vegetable'),
-                Icon(Icons.arrow_drop_down),
-              ],
-            ),
+    return Scaffold(
+      body: ListView(
+        children: <Widget>[
+          Text('Customer Name:'),
+          TextField(decoration: new InputDecoration(hintText: "input here")),
+          Text('Customer Phone Number :'),
+          TextField(
+            decoration: new InputDecoration(hintText: "input here"),
           ),
-//          RaisedButton(
-//            child: Text('Choose Qty'),
-//            onPressed: () {
-//              _showAddTaskDialog();
-//            },
-//          ),
+          Text('Customer Tower :'),
+          TextField(
+            decoration: new InputDecoration(hintText: "input here"),
+          ),
+          Text("Customer Flat :"),
+          TextField(
+            decoration: new InputDecoration(hintText: "input Here"),
+          ),
+          Text("Enter Stuff"),
+          TextField(
+            decoration: new InputDecoration(hintText: "input Here"),
+          ),
+          Text('Choose Vegetables :'),
+        Row(
+          children: [
+            FlatButton(
+              onPressed: () {
+                addToBill();
+              },
+              child: Row(
+                children: [
+                  Text('Select a vegetable'),
+                  Icon(Icons.arrow_drop_down),
+                ],
+              ),
+            ),
+          ],
+        ),
+          SizedBox(
+            height: 15.0,
+          ),
+          DataTable(
+            columns: [
+              DataColumn(label: Text('Vegetable')),
+              DataColumn(label: Text('Qty')),
+              DataColumn(label: Text('Price')),
+            ],
+            rows: selectedItems.map((e) => DataRow(cells: [DataCell(Text('${e.name}')), DataCell(Text('${e.qty}')), DataCell(Text('${e.price*e.qty}'))])).toList() ,
+          ),
+
         ],
       ),
-        SizedBox(
-          height: 15.0,
-        ),
-        DataTable(
-          columns: [
-            DataColumn(label: Text('Vegetable')),
-            DataColumn(label: Text('Qty')),
-            DataColumn(label: Text('Price')),
-          ],
-          rows: selectedItems.map((e) => DataRow(cells: [DataCell(Text('${e.name}')), DataCell(Text('${e.qty}')), DataCell(Text('${e.price*e.qty}'))])).toList() ,
-        ),
-      ],
+      bottomNavigationBar: TotalBar(bill: total,),
     );
   }
 

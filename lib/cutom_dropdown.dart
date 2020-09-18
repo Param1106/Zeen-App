@@ -25,10 +25,11 @@ class _CustomDropDownState extends State<CustomDropDown> {
           else {
             List<Vegetable> sorted = [];
             snapshot.data.documents.forEach((e) {
+              print(e.data['v_price'].runtimeType);
               sorted.add(Vegetable(uid: e.documentID,
                   name: e.data['v_name'],
-                  price: e.data['v_price'],
-                qty: 0,
+                  price: e.data['v_price'].toDouble(),
+                qty: 0.0,
               ));
             });
             sorted.sort((a, b) => a.name.compareTo(b.name));
