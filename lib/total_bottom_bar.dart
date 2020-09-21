@@ -3,8 +3,9 @@ import 'package:flutter/cupertino.dart';
 
 class TotalBar extends StatefulWidget {
   final double bill;
+  final VoidCallback onTap;
 
-  TotalBar({this.bill});
+  TotalBar({this.bill, this.onTap});
 
   @override
   _TotalBarState createState() => _TotalBarState();
@@ -23,9 +24,9 @@ class _TotalBarState extends State<TotalBar> {
             Container(
                 child: Row(
                   children: [
-                    Text('${widget.bill}', style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),),
+                    Text('${widget.bill ?? '0.0'}', style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),),
                     SizedBox(width: 10.0,),
-                    FlatButton(child: Text('Done'), onPressed: (){}, color: Colors.green,)
+                    FlatButton(child: Text('Done'), onPressed: widget.onTap, color: Colors.green,)
                   ],
                 )
             ),

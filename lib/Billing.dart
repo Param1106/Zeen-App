@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enactusdraft2/cutom_dropdown.dart';
+import 'package:enactusdraft2/success_page.dart';
 import 'package:enactusdraft2/total_bottom_bar.dart';
 import 'package:enactusdraft2/vegetable_model.dart';
 import 'package:flutter/material.dart';
@@ -43,16 +44,18 @@ class __MyList2State extends State<_MyList2> {
         builder: (context) {
           return AlertDialog(content: CustomDropDown(),);
         });
-    var res = await _showAddTaskDialog();
-    v.qty = double.parse(res);
-    setState(() {
-      selectedItems.add(v);
-      double sum = 0.0;
-      selectedItems.forEach((element) {
-        sum += element.price;
+    var res = await _showAddTaskDialog(v.name);
+    if(res != null) {
+      v.qty = double.parse(res);
+      setState(() {
+        selectedItems.add(v);
+        double sum = 0.0;
+        selectedItems.forEach((element) {
+          sum += element.price;
+        });
+        total = sum;
       });
-      total = sum;
-    });
+    }
   }
 
   @override
@@ -78,9 +81,10 @@ class __MyList2State extends State<_MyList2> {
           TextField(
             decoration: new InputDecoration(hintText: "input Here"),
           ),
-          Text('Choose Vegetables :'),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+            Text('Choose Vegetables :'),
             FlatButton(
               onPressed: () {
                 addToBill();
@@ -95,31 +99,39 @@ class __MyList2State extends State<_MyList2> {
           ],
         ),
           SizedBox(
-            height: 15.0,
+            height: 5.0,
           ),
           DataTable(
             columns: [
               DataColumn(label: Text('Vegetable')),
               DataColumn(label: Text('Qty')),
               DataColumn(label: Text('Price')),
+              DataColumn(label: Text('Edit')),
             ],
-            rows: selectedItems.map((e) => DataRow(cells: [DataCell(Text('${e.name}')), DataCell(Text('${e.qty}')), DataCell(Text('${e.price*e.qty}'))])).toList() ,
+            rows: selectedItems.map(
+                    (e) => DataRow(cells: [
+                      DataCell(Text('${e.name}')),
+                      DataCell(Text('${e.qty}')),
+                      DataCell(Text('${e.price*e.qty}')),
+                      DataCell(Icon(Icons.edit, color: Colors.green,), onTap: () => editOrderItem(selectedItems.indexOf(e))),
+                    ],)
+            ).toList(),
           ),
 
         ],
       ),
-      bottomNavigationBar: TotalBar(bill: total,),
+      bottomNavigationBar: TotalBar(bill: total, onTap: placeOrder,),
     );
   }
 
-  Future<String> _showAddTaskDialog() async {
+  Future<String> _showAddTaskDialog(String title) async {
     TextEditingController _cont = TextEditingController();
 
     var res = await showDialog(
         context: context,
         builder: (ctx) {
           return SimpleDialog(
-            title: Text("Input Quantity"),
+            title: Text("$title"),
             children: <Widget>[
               Container(
                 margin: EdgeInsets.all(10),
@@ -158,5 +170,24 @@ class __MyList2State extends State<_MyList2> {
           );
         });
     return res.toString();
+  }
+
+  void editOrderItem(int index) async {
+    Vegetable v = await showDialog(
+        context: Scaffold.of(context).context,
+        builder: (context) {
+          return AlertDialog(content: CustomDropDown(),);
+        });
+    var res = await _showAddTaskDialog(v.name);
+    v.qty = double.parse(res);
+    setState(() {
+      selectedItems[index] = v;
+    });
+  }
+
+  void placeOrder() async {
+    List<Map> order = selectedItems.map((e) => {'item': e.name, 'price': e.price, 'quantity': e.qty}).toList();
+    DocumentReference ref = await Firestore.instance.collection('markets').document('v_challengers').collection('bills').add({'bill': order});
+    Navigator.push(context, MaterialPageRoute(builder: (context) => SuccessPage(billID: ref.documentID,)));
   }
 }
