@@ -18,32 +18,40 @@ class _CustomDropDownState extends State<CustomDropDown> {
       width: MediaQuery.of(context).size.width - 50,
       height: MediaQuery.of(context).size.height - 50,
       child: StreamBuilder(
-        stream: Firestore.instance.collection('v_challengers').snapshots(),
+        stream: Firestore.instance.collection('markets').document('v_challengers').collection('vegetables').snapshots(),
         builder: (context, snapshot) {
           if(!snapshot.hasData)
             return Text('Loading...');
           else {
             List<Vegetable> sorted = [];
             snapshot.data.documents.forEach((e) {
-              print(e.data['v_price'].runtimeType);
               sorted.add(Vegetable(uid: e.documentID,
                   name: e.data['v_name'],
                   price: e.data['v_price'].toDouble(),
-                qty: 0.0,
+                qty: e.data['stock'] == null ? 0.0 : e.data['stock'].toDouble(),
               ));
             });
             sorted.sort((a, b) => a.name.compareTo(b.name));
             return ListView.builder(
                 itemCount: sorted.length,
                 itemBuilder: (context, index) {
+                  Color color = sorted[index].qty == 0.0 ? Colors.blueGrey : Colors.black;
                   return InkWell(
                     onTap: () {
-                      Navigator.of(context).pop(sorted[index]);
+                      if (sorted[index].qty != 0.0) {
+                        Navigator.of(context).pop(sorted[index]);
+                      }
                     },
                     child: Container(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text('${sorted[index].name}'),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('${sorted[index].name}', style: TextStyle(color: color),),
+                            Text('${sorted[index].qty}', style: TextStyle(color: color),),
+                          ],
+                        ),
                       ),
                     ),
                   );

@@ -40,21 +40,26 @@ class __MyList2State extends State<_MyList2> {
 
   void addToBill() async {
     Vegetable v = await showDialog(
+      barrierDismissible: false,
         context: Scaffold.of(context).context,
         builder: (context) {
           return AlertDialog(content: CustomDropDown(),);
         });
-    var res = await _showAddTaskDialog(v.name);
-    if(res != null) {
-      v.qty = double.parse(res);
-      setState(() {
-        selectedItems.add(v);
-        double sum = 0.0;
-        selectedItems.forEach((element) {
-          sum += element.price;
+    if( v != null) {
+      var res = await _showAddTaskDialog(v.name);
+      print(res != null);
+      if (res != null) {
+        v.qty = double.parse(res);
+        v.total = v.qty* v.price;
+        setState(() {
+          selectedItems.add(v);
+          double sum = 0.0;
+          selectedItems.forEach((element) {
+            sum += element.total;
+          });
+          total = sum;
         });
-        total = sum;
-      });
+      }
     }
   }
 
@@ -112,7 +117,7 @@ class __MyList2State extends State<_MyList2> {
                     (e) => DataRow(cells: [
                       DataCell(Text('${e.name}')),
                       DataCell(Text('${e.qty}')),
-                      DataCell(Text('${e.price*e.qty}')),
+                      DataCell(Text('${e.total}')),
                       DataCell(Icon(Icons.edit, color: Colors.green,), onTap: () => editOrderItem(selectedItems.indexOf(e))),
                     ],)
             ).toList(),
@@ -128,6 +133,7 @@ class __MyList2State extends State<_MyList2> {
     TextEditingController _cont = TextEditingController();
 
     var res = await showDialog(
+      barrierDismissible: false,
         context: context,
         builder: (ctx) {
           return SimpleDialog(
@@ -169,25 +175,77 @@ class __MyList2State extends State<_MyList2> {
             ),
           );
         });
-    return res.toString();
+    return res == null? null: res.toString();
   }
 
   void editOrderItem(int index) async {
     Vegetable v = await showDialog(
+      barrierDismissible: false,
         context: Scaffold.of(context).context,
         builder: (context) {
           return AlertDialog(content: CustomDropDown(),);
         });
     var res = await _showAddTaskDialog(v.name);
     v.qty = double.parse(res);
+    v.total = v.qty * v.price;
     setState(() {
       selectedItems[index] = v;
+      double sum = 0.0;
+      selectedItems.forEach((element) {
+        sum += element.total;
+      });
+      total = sum;
     });
   }
 
+  Future<bool> updateStock() async {
+    bool success = true;
+    Map<String, double> newQtys = {};
+    await Future.forEach(selectedItems, (element) async {
+      if(success) {
+        DocumentSnapshot doc = await Firestore.instance.collection('markets').document('v_challengers').collection('vegetables').document(element.uid).get();
+        double currQty = doc.data['stock'] == null ? 0.0 : doc.data['stock'].toDouble();
+        if (currQty != 0.0) {
+          double newQty = currQty - element.qty;
+          if(newQty >= 0.0) {
+            newQtys[element.uid] = newQty;
+          }
+          else {
+            Scaffold.of(context).showSnackBar(
+                SnackBar(content: Text('${element.name} Not enough Stock', style: TextStyle(fontSize: 20),), duration: Duration(seconds: 2),));
+            success = false;
+          }
+        }
+        else {
+          Scaffold.of(context).showSnackBar(SnackBar(content: Text('${element.name} Out of Stock', style: TextStyle(fontSize: 20),), duration: Duration(seconds: 2),));
+          success = false;
+        }
+      }
+    });
+    if(success) {
+      Future.forEach(newQtys.entries, (element) async {
+        await Firestore.instance.collection('markets').document('v_challengers').collection('vegetables').document(element.key).updateData({'stock': element.value});
+      });
+    }
+    return success;
+  }
+
   void placeOrder() async {
-    List<Map> order = selectedItems.map((e) => {'item': e.name, 'price': e.price, 'quantity': e.qty}).toList();
-    DocumentReference ref = await Firestore.instance.collection('markets').document('v_challengers').collection('bills').add({'bill': order});
-    Navigator.push(context, MaterialPageRoute(builder: (context) => SuccessPage(billID: ref.documentID,)));
+    bool res = await updateStock();
+    if(res){
+      List<Map> order = selectedItems.map((e) => {'item': e.name, 'price': e.price, 'quantity': e.qty}).toList();
+      QuerySnapshot docs = await Firestore.instance.collection('markets').document('v_challengers').collection('bills').getDocuments();
+      String id = (docs.documents.length+1).toString();
+      id = id.length < 6 ? '0'*(6-id.length)+id : id;
+      await Firestore.instance.collection('markets').document('v_challengers').collection('bills').document(id).setData({'bill': order});
+      Navigator.push(context, MaterialPageRoute(builder: (context) => SuccessPage(billID: id,)));
+      setState(() {
+        selectedItems = [];
+        total = 0.0;
+      });
+    }
+    else {
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Order could not be placed', style: TextStyle(fontSize: 20),), duration: Duration(seconds: 2),));
+    }
   }
 }
