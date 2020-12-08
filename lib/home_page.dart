@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enactusdraft2/auth.dart';
+import 'package:enactusdraft2/view_bill.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -60,6 +61,16 @@ class _MyHomePageState extends State<MyHomePage> {
                         builder: (BuildContext context) => new SignupPage()));
               },
             ),
+            new ListTile(
+              title: new Text('View Bill'),
+              leading: const Icon(Icons.style),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    new MaterialPageRoute(
+                        builder: (BuildContext context) => new ViewBill()));
+              },
+            ),
           ],
         ),
       ),
@@ -67,9 +78,53 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text('Welcome to ${r.currentUser.market} market',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24.0),
+          Container(
+            width: MediaQuery.of(context).size.width - 30.0,
+            child: Text('Welcome to ${r.currentUser.market[2].toUpperCase()+r.currentUser.market.substring(3)} market',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 26.0),
+              textAlign: TextAlign.center,
+            ),
           ),
+          SizedBox(height: 30.0,),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Card(
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Billing()));
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width/2 - 20.0,
+                    height: MediaQuery.of(context).size.width/2 - 80.0,
+                    child: Column(
+                      children: [
+                        Icon(Icons.shopping_cart, size: 95.0, color: Colors.green,),
+                        Text('Make Orders', style: TextStyle(fontWeight: FontWeight.w600),),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Card(
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ViewBill()));
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width/2 - 20.0,
+                    height: MediaQuery.of(context).size.width/2 - 80.0,
+                    child: Column(
+                      children: [
+                        Icon(Icons.style, size: 95.0, color: Colors.green,),
+                        Text('Billing Information', style: TextStyle(fontWeight: FontWeight.w600),)
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
+          )
         ],
       )
     );
@@ -83,7 +138,6 @@ class _MyHomePageState extends State<MyHomePage> {
 //      String name = element.data['v_name'];
 //      if(element.data['v_name'].toString().contains("/")) {
 //        name = name.substring(0, name.indexOf("/"));
-//        print(name);
 //      }
 //      Firestore.instance.collection('markets').document('v_golden_rays')
 //          .collection('vegetables').document(name)
