@@ -64,6 +64,9 @@ flutter:
          - asset: assets/Gotham-Book.ttf
            style: italic
            weight: 700
+
+  assets:
+    - assets/images/
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

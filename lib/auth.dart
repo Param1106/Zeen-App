@@ -3,11 +3,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Auth {
   static Firestore _firestore = Firestore.instance;
-  AuthItem currUser;
+  static AuthItem currUser;
 
   set setCurrUser(AuthItem user) {
     currUser = user;
   }
+
+  get currentUser => currUser;
 
   static Future<List<dynamic>> getListOfCred() async {
     DocumentSnapshot creds = await _firestore.collection('login').document('credentials').get();
@@ -15,6 +17,7 @@ class Auth {
       AuthItem(
         name: e['u_name'],
         pass: e['u_pass'],
+        market: e['market']
       )
     ).toList();
     return users;
@@ -33,6 +36,7 @@ class Auth {
         if (flag != 1) {
           if(obj.name == currUser.name)
             if(obj.pass == currUser.pass) {
+              currUser.market = obj.market;
               flag = 1;
             }
         }
@@ -46,8 +50,9 @@ class Auth {
 class AuthItem {
   final String name;
   final String pass;
+  String market;
 
-  AuthItem({this.name, this.pass});
+  AuthItem({this.name, this.pass, this.market});
 }
 
 

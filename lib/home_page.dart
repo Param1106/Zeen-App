@@ -1,3 +1,4 @@
+import 'package:enactusdraft2/auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +14,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
+    var r = Auth();
+    print(r.currentUser.market);
     return Scaffold(
       appBar: AppBar(
         title: Text('ZEEN'),

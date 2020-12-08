@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:enactusdraft2/auth.dart';
 import 'package:enactusdraft2/cutom_dropdown.dart';
 import 'package:enactusdraft2/success_page.dart';
 import 'package:enactusdraft2/total_bottom_bar.dart';
@@ -11,37 +12,25 @@ class Billing extends StatefulWidget {
 }
 
 class _BillingState extends State<Billing> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: new AppBar(
-        title: new Text('Billing'),
-      ),
-      body: new _MyList2(),
-    );
-  }
-}
-
-class _MyList2 extends StatefulWidget {
-  @override
-  __MyList2State createState() => __MyList2State();
-}
-
-class __MyList2State extends State<_MyList2> {
+  GlobalKey _key = GlobalKey<ScaffoldState>();
   double total;
   Vegetable selected;
   List<Vegetable> selectedItems  = [];
   Future<List<DropdownMenuItem<Vegetable>>> items;
 
+  AuthItem currentUser = Auth().currentUser;
+  String market;
+  
   @override
   void initState() {
+    market = currentUser.market;
     super.initState();
   }
 
   void addToBill() async {
     Vegetable v = await showDialog(
-      barrierDismissible: false,
-        context: Scaffold.of(context).context,
+        barrierDismissible: false,
+        context: _key.currentContext,
         builder: (context) {
           return AlertDialog(content: CustomDropDown(),);
         });
@@ -65,65 +54,57 @@ class __MyList2State extends State<_MyList2> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      body: ListView(
-        children: <Widget>[
-          Text('Customer Name:'),
-          TextField(decoration: new InputDecoration(hintText: "input here")),
-          Text('Customer Phone Number :'),
-          TextField(
-            decoration: new InputDecoration(hintText: "input here"),
-          ),
-          Text('Customer Tower :'),
-          TextField(
-            decoration: new InputDecoration(hintText: "input here"),
-          ),
-          Text("Customer Flat :"),
-          TextField(
-            decoration: new InputDecoration(hintText: "input Here"),
-          ),
-          Text("Enter Stuff"),
-          TextField(
-            decoration: new InputDecoration(hintText: "input Here"),
-          ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+      key: _key,
+      appBar: new AppBar(
+        title: new Text(market),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
           children: [
-            Text('Choose Vegetables :'),
-            FlatButton(
-              onPressed: () {
-                addToBill();
-              },
-              child: Row(
-                children: [
-                  Text('Select a vegetable'),
-                  Icon(Icons.arrow_drop_down),
-                ],
-              ),
+            _MyList2(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text('Choose Vegetables :'),
+                FlatButton(
+                  onPressed: () {
+                    addToBill();
+                  },
+                  child: Row(
+                    children: [
+                      Text('Select a vegetable'),
+                      Icon(Icons.arrow_drop_down),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-          SizedBox(
-            height: 5.0,
-          ),
-          DataTable(
-            columns: [
-              DataColumn(label: Text('Vegetable')),
-              DataColumn(label: Text('Qty')),
-              DataColumn(label: Text('Price')),
-              DataColumn(label: Text('Edit')),
-            ],
-            rows: selectedItems.map(
-                    (e) => DataRow(cells: [
+            SizedBox(
+              height: 5.0,
+            ),
+            InteractiveViewer(
+//              constrained: false,
+              child: DataTable(
+                columns: [
+                  DataColumn(label: Text('Vegetable')),
+                  DataColumn(label: Text('Qty')),
+                  DataColumn(label: Text('Price')),
+                  DataColumn(label: Text('Edit')),
+                ],
+                rows: selectedItems.map(
+                        (e) => DataRow(cells: [
                       DataCell(Text('${e.name}')),
                       DataCell(Text('${e.qty}')),
                       DataCell(Text('${e.total}')),
                       DataCell(Icon(Icons.edit, color: Colors.green,), onTap: () => editOrderItem(selectedItems.indexOf(e))),
                     ],)
-            ).toList(),
-          ),
-
-        ],
+                ).toList(),
+              ),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: TotalBar(bill: total, onTap: placeOrder,),
     );
@@ -133,7 +114,7 @@ class __MyList2State extends State<_MyList2> {
     TextEditingController _cont = TextEditingController();
 
     var res = await showDialog(
-      barrierDismissible: false,
+        barrierDismissible: false,
         context: context,
         builder: (ctx) {
           return SimpleDialog(
@@ -180,22 +161,24 @@ class __MyList2State extends State<_MyList2> {
 
   void editOrderItem(int index) async {
     Vegetable v = await showDialog(
-      barrierDismissible: false,
-        context: Scaffold.of(context).context,
+        barrierDismissible: false,
+        context: _key.currentContext,
         builder: (context) {
           return AlertDialog(content: CustomDropDown(),);
         });
-    var res = await _showAddTaskDialog(v.name);
-    v.qty = double.parse(res);
-    v.total = v.qty * v.price;
-    setState(() {
-      selectedItems[index] = v;
-      double sum = 0.0;
-      selectedItems.forEach((element) {
-        sum += element.total;
+    if (v != null) {
+      var res = await _showAddTaskDialog(v.name);
+      v.qty = double.parse(res);
+      v.total = v.qty * v.price;
+      setState(() {
+        selectedItems[index] = v;
+        double sum = 0.0;
+        selectedItems.forEach((element) {
+          sum += element.total;
+        });
+        total = sum;
       });
-      total = sum;
-    });
+    }
   }
 
   Future<bool> updateStock() async {
@@ -203,7 +186,7 @@ class __MyList2State extends State<_MyList2> {
     Map<String, double> newQtys = {};
     await Future.forEach(selectedItems, (element) async {
       if(success) {
-        DocumentSnapshot doc = await Firestore.instance.collection('markets').document('v_challengers').collection('vegetables').document(element.uid).get();
+        DocumentSnapshot doc = await Firestore.instance.collection('markets').document(market).collection('vegetables').document(element.uid).get();
         double currQty = doc.data['stock'] == null ? 0.0 : doc.data['stock'].toDouble();
         if (currQty != 0.0) {
           double newQty = currQty - element.qty;
@@ -224,7 +207,7 @@ class __MyList2State extends State<_MyList2> {
     });
     if(success) {
       Future.forEach(newQtys.entries, (element) async {
-        await Firestore.instance.collection('markets').document('v_challengers').collection('vegetables').document(element.key).updateData({'stock': element.value});
+        await Firestore.instance.collection('markets').document(market).collection('vegetables').document(element.key).updateData({'stock': element.value});
       });
     }
     return success;
@@ -234,10 +217,10 @@ class __MyList2State extends State<_MyList2> {
     bool res = await updateStock();
     if(res){
       List<Map> order = selectedItems.map((e) => {'item': e.name, 'price': e.price, 'quantity': e.qty}).toList();
-      QuerySnapshot docs = await Firestore.instance.collection('markets').document('v_challengers').collection('bills').getDocuments();
+      QuerySnapshot docs = await Firestore.instance.collection('markets').document(market).collection('bills').getDocuments();
       String id = (docs.documents.length+1).toString();
       id = id.length < 6 ? '0'*(6-id.length)+id : id;
-      await Firestore.instance.collection('markets').document('v_challengers').collection('bills').document(id).setData({'bill': order});
+      await Firestore.instance.collection('markets').document(market).collection('bills').document(id).setData({'bill': order, 'total': total});
       Navigator.push(context, MaterialPageRoute(builder: (context) => SuccessPage(billID: id,)));
       setState(() {
         selectedItems = [];
@@ -247,5 +230,40 @@ class __MyList2State extends State<_MyList2> {
     else {
       Scaffold.of(context).showSnackBar(SnackBar(content: Text('Order could not be placed', style: TextStyle(fontSize: 20),), duration: Duration(seconds: 2),));
     }
+  }
+}
+
+class _MyList2 extends StatefulWidget {
+  @override
+  __MyList2State createState() => __MyList2State();
+}
+
+class __MyList2State extends State<_MyList2> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text('Customer Name:'),
+        TextField(decoration: new InputDecoration(hintText: "input here")),
+        Text('Customer Phone Number :'),
+        TextField(
+          decoration: new InputDecoration(hintText: "input here"),
+        ),
+        Text('Customer Tower :'),
+        TextField(
+          decoration: new InputDecoration(hintText: "input here"),
+        ),
+        Text("Customer Flat :"),
+        TextField(
+          decoration: new InputDecoration(hintText: "input Here"),
+        ),
+        Text("Enter Stuff"),
+        TextField(
+          decoration: new InputDecoration(hintText: "input Here"),
+        ),
+      ],
+    );
   }
 }
