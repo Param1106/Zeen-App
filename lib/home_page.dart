@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enactusdraft2/auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +13,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  var r = Auth();
+
   @override
   Widget build(BuildContext context) {
-    var r = Auth();
     print(r.currentUser.market);
     return Scaffold(
       appBar: AppBar(
@@ -61,13 +63,31 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-
-      ),
-
-      // This trailing comma makes auto-formatting nicer for build methods.
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text('Welcome to ${r.currentUser.market} market',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24.0),
+          ),
+        ],
+      )
     );
   }
+
+///  Function to duplicate a collection of vegetables
+//  void temp() async {
+//    QuerySnapshot q = await Firestore.instance.collection('markets')
+//        .document(r.currentUser.market).collection('vegetables').getDocuments();
+//    Future.forEach(q.documents, (DocumentSnapshot element) {
+//      String name = element.data['v_name'];
+//      if(element.data['v_name'].toString().contains("/")) {
+//        name = name.substring(0, name.indexOf("/"));
+//        print(name);
+//      }
+//      Firestore.instance.collection('markets').document('v_golden_rays')
+//          .collection('vegetables').document(name)
+//          .setData({'v_name': element.data['v_name'], 'v_price': element.data['v_price'], 'stock': element.data['stock']});
+//    });
+//  }
 }
