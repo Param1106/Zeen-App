@@ -15,10 +15,32 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var r = Auth();
+  String market;
+
+  String marketName(String str) {
+    int i = 2;
+    int j = 0;
+    String name = "";
+    String temp;
+    while(i < str.length) {
+      j = str.indexOf("_", i);
+      if(j == -1) {
+        j = str.length;
+        temp = str.substring(i, j);
+        name += temp[0].toUpperCase() + temp.substring(1);
+      }
+      else {
+        temp = str.substring(i, j);
+        name += temp[0].toUpperCase() + temp.substring(1) + " ";
+      }
+      i = j+1;
+    }
+    return name;
+  }
 
   @override
   Widget build(BuildContext context) {
-    print(r.currentUser.market);
+    market = marketName(r.currentUser.market);
     return Scaffold(
       appBar: AppBar(
         title: Text('ZEEN'),
@@ -80,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           Container(
             width: MediaQuery.of(context).size.width - 30.0,
-            child: Text('Welcome to ${r.currentUser.market[2].toUpperCase()+r.currentUser.market.substring(3)} market',
+            child: Text('Welcome to $market market',
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 26.0),
               textAlign: TextAlign.center,
             ),
@@ -96,8 +118,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: Container(
                     width: MediaQuery.of(context).size.width/2 - 20.0,
-                    height: MediaQuery.of(context).size.width/2 - 80.0,
+                    height: MediaQuery.of(context).size.width/2 - 50.0,
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.shopping_cart, size: 95.0, color: Colors.green,),
                         Text('Make Orders', style: TextStyle(fontWeight: FontWeight.w600),),
@@ -113,8 +136,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: Container(
                     width: MediaQuery.of(context).size.width/2 - 20.0,
-                    height: MediaQuery.of(context).size.width/2 - 80.0,
+                    height: MediaQuery.of(context).size.width/2 - 50.0,
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.style, size: 95.0, color: Colors.green,),
                         Text('Billing Information', style: TextStyle(fontWeight: FontWeight.w600),)

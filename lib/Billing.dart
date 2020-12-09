@@ -55,6 +55,8 @@ class _BillingState extends State<Billing> {
   @override
   Widget build(BuildContext context) {
 
+    double cellWidth = (MediaQuery.of(context).size.width/2) - 8.0;
+
     return Scaffold(
       key: _key,
       appBar: new AppBar(
@@ -84,24 +86,46 @@ class _BillingState extends State<Billing> {
             SizedBox(
               height: 5.0,
             ),
-            InteractiveViewer(
-//              constrained: false,
-              child: DataTable(
-                columns: [
-                  DataColumn(label: Text('Vegetable')),
-                  DataColumn(label: Text('Qty')),
-                  DataColumn(label: Text('Price')),
-                  DataColumn(label: Text('Edit')),
-                ],
-                rows: selectedItems.map(
-                        (e) => DataRow(cells: [
-                      DataCell(Text('${e.name}')),
-                      DataCell(Text('${e.qty}')),
-                      DataCell(Text('${e.total}')),
-                      DataCell(Icon(Icons.edit, color: Colors.green,), onTap: () => editOrderItem(selectedItems.indexOf(e))),
-                    ],)
-                ).toList(),
-              ),
+            DataTable(
+              showBottomBorder: true,
+              columnSpacing: 0.0,
+              horizontalMargin: 8.0,
+              headingRowColor: MaterialStateColor.resolveWith((states) => Colors.green),
+              columns: [
+                DataColumn(label: Container(width: cellWidth, child: Text('Vegetable'))),
+                DataColumn(label: Container(child: Text('Qty'))),
+                DataColumn(label: Container(child: Text('Price'))),
+                DataColumn(label: Container(child: Text('Edit'))),
+              ],
+              rows: selectedItems.map(
+                      (e) => DataRow(cells: [
+                    DataCell(
+                        Container(
+                            width: cellWidth,
+                            child: Text('${e.name}')
+                        )
+                    ),
+                    DataCell(
+                        Container(
+                            width: cellWidth/3,
+                            child: Text('${e.qty}')
+                        )
+                    ),
+                    DataCell(
+                        Container(
+                            width: cellWidth/3,
+                            child: Text('${e.total}')
+                        )
+                    ),
+                    DataCell(
+                        Container(
+                            width: cellWidth/3,
+                            child: Icon(Icons.edit, color: Colors.green,)
+                        ),
+                        onTap: () => editOrderItem(selectedItems.indexOf(e))
+                    ),
+                  ],)
+              ).toList(),
             ),
           ],
         ),
