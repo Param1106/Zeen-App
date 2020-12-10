@@ -12,7 +12,7 @@ class Billing extends StatefulWidget {
 }
 
 class _BillingState extends State<Billing> {
-  GlobalKey _key = GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
   double total;
   Vegetable selected;
   List<Vegetable> selectedItems  = [];
@@ -20,12 +20,35 @@ class _BillingState extends State<Billing> {
 
   AuthItem currentUser = Auth().currentUser;
   String market;
+  _MyList2 lst = _MyList2();
   
   @override
   void initState() {
     market = currentUser.market;
     super.initState();
   }
+
+  String marketName(String str) {
+    int i = 2;
+    int j = 0;
+    String name = "";
+    String temp;
+    while(i < str.length) {
+      j = str.indexOf("_", i);
+      if(j == -1) {
+        j = str.length;
+        temp = str.substring(i, j);
+        name += temp[0].toUpperCase() + temp.substring(1);
+      }
+      else {
+        temp = str.substring(i, j);
+        name += temp[0].toUpperCase() + temp.substring(1) + " ";
+      }
+      i = j+1;
+    }
+    return name;
+  }
+
 
   void addToBill() async {
     Vegetable v = await showDialog(
@@ -60,12 +83,12 @@ class _BillingState extends State<Billing> {
     return Scaffold(
       key: _key,
       appBar: new AppBar(
-        title: new Text(market),
+        title: new Text(marketName(market)+" Market"),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _MyList2(),
+            lst,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -93,9 +116,9 @@ class _BillingState extends State<Billing> {
               headingRowColor: MaterialStateColor.resolveWith((states) => Colors.green),
               columns: [
                 DataColumn(label: Container(width: cellWidth, child: Text('Vegetable'))),
-                DataColumn(label: Container(child: Text('Qty'))),
-                DataColumn(label: Container(child: Text('Price'))),
-                DataColumn(label: Container(child: Text('Edit'))),
+                DataColumn(label: Container(width: cellWidth/3, child: Text('Qty'))),
+                DataColumn(label: Container(width: cellWidth/3, child: Text('Price'))),
+                DataColumn(label: Container(width: cellWidth/3, child: Text('Edit'))),
               ],
               rows: selectedItems.map(
                       (e) => DataRow(cells: [
@@ -210,7 +233,9 @@ class _BillingState extends State<Billing> {
     Map<String, double> newQtys = {};
     await Future.forEach(selectedItems, (element) async {
       if(success) {
+        print(market);
         DocumentSnapshot doc = await Firestore.instance.collection('markets').document(market).collection('vegetables').document(element.uid).get();
+        print(element.uid);
         double currQty = doc.data['stock'] == null ? 0.0 : doc.data['stock'].toDouble();
         if (currQty != 0.0) {
           double newQty = currQty - element.qty;
@@ -218,13 +243,13 @@ class _BillingState extends State<Billing> {
             newQtys[element.uid] = newQty;
           }
           else {
-            Scaffold.of(context).showSnackBar(
-                SnackBar(content: Text('${element.name} Not enough Stock', style: TextStyle(fontSize: 20),), duration: Duration(seconds: 2),));
+            _key.currentState.showSnackBar(
+                SnackBar(content: Text('${element.name} Not enough Stock', style: TextStyle(fontSize: 16),), duration: Duration(seconds: 1),));
             success = false;
           }
         }
         else {
-          Scaffold.of(context).showSnackBar(SnackBar(content: Text('${element.name} Out of Stock', style: TextStyle(fontSize: 20),), duration: Duration(seconds: 2),));
+          _key.currentState.showSnackBar(SnackBar(content: Text('${element.name} Out of Stock', style: TextStyle(fontSize: 16),), duration: Duration(seconds: 1),));
           success = false;
         }
       }
@@ -237,14 +262,26 @@ class _BillingState extends State<Billing> {
     return success;
   }
 
+  List<Map> formatOrder(List<Vegetable> lst) {
+    List<Map> res = [];
+    lst.forEach((e) {
+      if(e.qty != 0.0) {
+        res.add({'item': e.name, 'price': e.price, 'quantity': e.qty});
+      }
+    });
+    return res;
+  }
+
   void placeOrder() async {
+    Map result = lst.getData();
     bool res = await updateStock();
     if(res){
-      List<Map> order = selectedItems.map((e) => {'item': e.name, 'price': e.price, 'quantity': e.qty}).toList();
+      List<Map> order = formatOrder(selectedItems);
       QuerySnapshot docs = await Firestore.instance.collection('markets').document(market).collection('bills').getDocuments();
       String id = (docs.documents.length+1).toString();
       id = id.length < 6 ? '0'*(6-id.length)+id : id;
-      await Firestore.instance.collection('markets').document(market).collection('bills').document(id).setData({'bill': order, 'total': total});
+      await Firestore.instance.collection('markets').document(market).collection('bills').document(id)
+          .setData({'bill': order, 'total': total, 'name': result['name'], 'phno': result['phno'], 'flatno': result['flatno'], 'bld': result['bld']});
       Navigator.push(context, MaterialPageRoute(builder: (context) => SuccessPage(billID: id,)));
       setState(() {
         selectedItems = [];
@@ -252,12 +289,27 @@ class _BillingState extends State<Billing> {
       });
     }
     else {
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Order could not be placed', style: TextStyle(fontSize: 20),), duration: Duration(seconds: 2),));
+      _key.currentState.showSnackBar(SnackBar(content: Text('Order could not be placed', style: TextStyle(fontSize: 20),), duration: Duration(seconds: 2),));
     }
   }
 }
 
 class _MyList2 extends StatefulWidget {
+
+  TextEditingController _name = TextEditingController();
+  TextEditingController _phno = TextEditingController();
+  TextEditingController _flatno = TextEditingController();
+  TextEditingController _bld = TextEditingController();
+
+  Map<String, String> getData() {
+    return {
+      "name": _name.text,
+      "phno": _phno.text,
+      "flatno": _flatno.text,
+      "bld": _bld.text,
+    };
+  }
+
   @override
   __MyList2State createState() => __MyList2State();
 }
@@ -270,21 +322,25 @@ class __MyList2State extends State<_MyList2> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text('Customer Name:'),
-        TextField(decoration: new InputDecoration(hintText: "input here")),
+        TextField(
+          controller: widget._name,
+          decoration: new InputDecoration(hintText: "input here")
+        ),
         Text('Customer Phone Number :'),
         TextField(
+          controller: widget._phno,
+          keyboardType: TextInputType.number,
           decoration: new InputDecoration(hintText: "input here"),
         ),
         Text('Customer Tower :'),
         TextField(
+          controller: widget._bld,
           decoration: new InputDecoration(hintText: "input here"),
         ),
         Text("Customer Flat :"),
         TextField(
-          decoration: new InputDecoration(hintText: "input Here"),
-        ),
-        Text("Enter Stuff"),
-        TextField(
+          controller: widget._flatno,
+          keyboardType: TextInputType.number,
           decoration: new InputDecoration(hintText: "input Here"),
         ),
       ],

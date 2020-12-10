@@ -16,6 +16,7 @@ class _ViewBillState extends State<ViewBill> {
   String market;
   double total;
   List<Vegetable> veggies = [];
+  Map customerDetails = {};
 
   @override
   void initState() {
@@ -90,6 +91,67 @@ class _ViewBillState extends State<ViewBill> {
                                   style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600),
                                 ),
                               ),
+                              Builder(
+                                builder: (context) {
+                                  if (customerDetails['name'] != "") {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text('Name: ${customerDetails['name']}',
+                                        style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w400),
+                                      ),
+                                    );
+                                  }
+                                  else {
+                                    return Container();
+                                  }
+                                },
+                              ),
+                              Builder(
+                                builder: (context) {
+                                  if (customerDetails['phno'] != "") {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text('Phone Number: ${customerDetails['phno']}',
+                                        style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w400),
+                                      ),
+                                    );
+                                  }
+                                  else {
+                                    return Container();
+                                  }
+                                },
+                              ),
+                              Builder(
+                                builder: (context) {
+                                  if (customerDetails['bld'] != "") {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text('Building: ${customerDetails['bld']}',
+                                        style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w400),
+                                      ),
+                                    );
+                                  }
+                                  else {
+                                    return Container();
+                                  }
+                                },
+                              ),
+                              Builder(
+                                builder: (context) {
+                                  if (customerDetails['flatno'] != "") {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text('Flat Number: ${customerDetails['flatno']}',
+                                        style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w400),
+                                      ),
+                                    );
+                                  }
+                                  else {
+                                    return Container();
+                                  }
+                                },
+                              ),
+                              SizedBox(height: 10.0,),
                               Expanded(
                                 child: ListView.builder(
                                   itemCount: veggies == null ? 0 : veggies.length,
@@ -147,6 +209,12 @@ class _ViewBillState extends State<ViewBill> {
     List<dynamic> lst = doc.data['bill'];
     double total = doc.data['total'];
     this.total = total;
+    this.customerDetails = {
+      'name': doc.data['name'],
+      'bld': doc.data['bld'],
+      'flatno': doc.data['flatno'],
+      'phno': doc.data['phno']
+    };
     List<Vegetable> vegs = [];
     lst.forEach((element) {
       Vegetable item = Vegetable(

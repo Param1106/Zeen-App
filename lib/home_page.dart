@@ -43,58 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
     market = marketName(r.currentUser.market);
     return Scaffold(
       appBar: AppBar(
-        title: Text('ZEEN'),
-      ),
-      drawer: new Drawer(
-        child: new ListView(
-          children: <Widget>[
-            new UserAccountsDrawerHeader(
-              accountName: Text('ZEEN'),
-              accountEmail: Text('ZEEN.com'),
-              currentAccountPicture: new CircleAvatar(),
-            ),
-            new ListTile(
-              title: new Text('Rates'),
-              leading: const Icon(Icons.face),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (BuildContext context) => new Rates()));
-              },
-            ),
-            new ListTile(
-              title: new Text('Billing'),
-              leading: const Icon(Icons.face),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (BuildContext context) => new Billing()));
-              },
-            ),
-            new ListTile(
-              title: new Text('Signup'),
-              leading: const Icon(Icons.face),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (BuildContext context) => new SignupPage()));
-              },
-            ),
-            new ListTile(
-              title: new Text('View Bill'),
-              leading: const Icon(Icons.style),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (BuildContext context) => new ViewBill()));
-              },
-            ),
-          ],
-        ),
+        title: Center(child: Text('ZEEN')),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -151,6 +100,60 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ],
       )
+    );
+  }
+
+  Drawer customDrawer() {
+    return new Drawer(
+      child: new ListView(
+        children: <Widget>[
+          new UserAccountsDrawerHeader(
+            accountName: Text('ZEEN'),
+            accountEmail: Text('ZEEN.com'),
+            currentAccountPicture: new CircleAvatar(),
+          ),
+          new ListTile(
+            title: new Text('Rates'),
+            leading: const Icon(Icons.face),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                      builder: (BuildContext context) => new Rates()));
+            },
+          ),
+          new ListTile(
+            title: new Text('Billing'),
+            leading: const Icon(Icons.face),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                      builder: (BuildContext context) => new Billing()));
+            },
+          ),
+          new ListTile(
+            title: new Text('Signup'),
+            leading: const Icon(Icons.face),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                      builder: (BuildContext context) => new SignupPage()));
+            },
+          ),
+          new ListTile(
+            title: new Text('View Bill'),
+            leading: const Icon(Icons.style),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                      builder: (BuildContext context) => new ViewBill()));
+            },
+          ),
+        ],
+      ),
     );
   }
 

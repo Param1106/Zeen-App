@@ -1,3 +1,4 @@
+import 'package:enactusdraft2/auth.dart';
 import 'package:enactusdraft2/vegetable_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +12,14 @@ class CustomDropDown extends StatefulWidget {
 
 class _CustomDropDownState extends State<CustomDropDown> {
   Vegetable selected;
+  AuthItem r = Auth().currentUser;
+  String market;
+
+  @override
+  void initState() {
+    market = r.market;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +27,7 @@ class _CustomDropDownState extends State<CustomDropDown> {
       width: MediaQuery.of(context).size.width - 50,
       height: MediaQuery.of(context).size.height - 50,
       child: StreamBuilder(
-        stream: Firestore.instance.collection('markets').document('v_challengers').collection('vegetables').snapshots(),
+        stream: Firestore.instance.collection('markets').document(market).collection('vegetables').snapshots(),
         builder: (context, snapshot) {
           if(!snapshot.hasData)
             return Text('Loading...');
