@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enactusdraft2/auth.dart';
 import 'package:enactusdraft2/view_bill.dart';
+import 'package:enactusdraft2/view_sales.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -91,6 +92,29 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: [
                         Icon(Icons.style, size: 95.0, color: Colors.green,),
                         Text('Billing Information', style: TextStyle(fontWeight: FontWeight.w600),)
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Card(
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ViewSales()));
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width/2 - 20.0,
+                    height: MediaQuery.of(context).size.width/2 - 50.0,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.monetization_on, size: 95.0, color: Colors.green,),
+                        Text('Sales Information', style: TextStyle(fontWeight: FontWeight.w600),),
                       ],
                     ),
                   ),

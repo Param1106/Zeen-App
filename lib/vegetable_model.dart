@@ -4,16 +4,23 @@ class Vegetable {
   final double price;
   double totalPrice;
   double qty;
-
-  set quantity(double qty) {
-    this.qty = qty;
-  }
+  double ogQty;
 
   set total(double total) {
     this.totalPrice = total;
   }
 
+  set quantity(double qty) {
+    this.qty = qty;
+  }
+
+  set ogStock(double qty) {
+    this.ogQty = qty;
+  }
+
   double get total => totalPrice;
 
-  Vegetable({this.uid, this.name, this.price, this.qty});
+  double get ogStock => ogQty;
+
+  Vegetable({this.uid, this.name, this.price, this.qty, this.ogQty});
 }

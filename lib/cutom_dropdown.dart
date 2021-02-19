@@ -18,6 +18,7 @@ class _CustomDropDownState extends State<CustomDropDown> {
   @override
   void initState() {
     market = r.market;
+    print(market);
     super.initState();
   }
 
@@ -34,6 +35,7 @@ class _CustomDropDownState extends State<CustomDropDown> {
           else {
             List<Vegetable> sorted = [];
             snapshot.data.documents.forEach((e) {
+              print(e.data['v_name']);
               sorted.add(Vegetable(uid: e.documentID,
                   name: e.data['v_name'],
                   price: e.data['v_price'].toDouble(),
