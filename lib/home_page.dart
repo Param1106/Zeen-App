@@ -119,6 +119,24 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
+              ),
+              Card(
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Rates()));
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width/2 - 20.0,
+                    height: MediaQuery.of(context).size.width/2 - 50.0,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.monetization_on, size: 95.0, color: Colors.green,),
+                        Text('Set Rates', style: TextStyle(fontWeight: FontWeight.w600),),
+                      ],
+                    ),
+                  ),
+                ),
               )
             ],
           )
