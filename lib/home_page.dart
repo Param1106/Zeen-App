@@ -131,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.monetization_on, size: 95.0, color: Colors.green,),
+                        Icon(Icons.local_atm, size: 95.0, color: Colors.green,),
                         Text('Set Rates', style: TextStyle(fontWeight: FontWeight.w600),),
                       ],
                     ),
